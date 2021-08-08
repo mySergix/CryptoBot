@@ -42,4 +42,16 @@ def get_filtered_pairs(SelectedCoin, MinimumVolume):
     return Final_List
 
 
-get_filtered_pairs("USDT", 100000000)
+Moneda = "USDT"
+Volumen_Minimo = 1e7 # (euros/dolares)
+
+get_filtered_pairs(Moneda, Volumen_Minimo)
+
+
+  LOOP FOR DE CADA UNO DE LOS ACTIVOS FILTRADOS
+
+    CLASE TRADING ANALYSIS
+        ANALISIS DE INDICADORES DE COMPRA Y VENTA, CÁLCULO DE UNA PUNTUACIÓN A DETERMINAR
+        RETURN A UN TXT EN MODO APPEND DE LA PUNTUACION
+
+FINAL DEL LOOP
