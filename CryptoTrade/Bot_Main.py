@@ -103,6 +103,10 @@ else:
 
 Bot_1 = Bot_Binance.Bot_BinanceClass(BINANCE["API_Key"], BINANCE["Secret_Key"], COIN["Crypto"], COIN["Fiat"], FREQUENCY, DataElements)
 
+Bot_1.Get_CandleData()
+Bot_1.Get_SMA(10)
+Bot_1.Get_Stochastic(12, 3, 3)
+print(Bot_1.CandleData)
 #Bot_1.Create_Test_Order("BUY", 100, 100)
 
 

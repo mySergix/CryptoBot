@@ -6,6 +6,7 @@ from binance.enums import *
 import datetime as dt
 import math
 import os
+import btalib
 
 # Clase con los datos y las funciones de Binance
 class Bot_BinanceClass:
@@ -159,3 +160,19 @@ class Bot_BinanceClass:
                                                        str(cantidad_crypto), str(cantidad_fiat), comision, moneda_comision))
 
         f1.close()
+
+    # Lectura de los datos de las velas descargados
+    def Get_CandleData(self):
+        self.CandleData = pd.read_csv("MarketData/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, self.Frequency))
+        self.DataCandles = len(self.CandleData)
+
+    # Calculo Indicador SMA
+    def Get_SMA(self, Days):
+        SMA = btalib.sma(self.CandleData, period = Days)
+        self.CandleData["SMA_{}".format(Days)] = SMA.df
+
+    # Calculo Indicador Estocástico
+    def Get_Stochastic(self, Days, pfast, pslow):
+        STO = btalib.stochastic(self.CandleData, period = Days, pfast = pfast, pslow = pslow)
+        self.CandleData["STO_k_{}_{}_{}".format(Days, pfast, pslow)] = STO.k
+        self.CandleData["STO_d_{}_{}_{}".format(Days, pfast, pslow)] = STO.d
