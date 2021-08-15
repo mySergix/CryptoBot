@@ -105,7 +105,7 @@ Bot_1 = Bot_Binance.Bot_BinanceClass(BINANCE["API_Key"], BINANCE["Secret_Key"], 
 
 #Bot_1.Create_Test_Order("BUY", 100, 100)
 
-Bot_1.Create_Limit_Order(Bot_1.SELL, 103.12, 23.76)
+
 
 
 

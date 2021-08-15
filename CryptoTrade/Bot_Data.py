@@ -9,8 +9,8 @@ BINANCE = {
 
 #Par de monedas
 COIN = {
-    "Crypto": "DOT",
-    "Fiat": "USDT"
+    "Crypto": "ETH",
+    "Fiat": "BTC"
 }
 
 #Fechas de inicio y final (Año, mes, dia, horas, minutos, segundos)
