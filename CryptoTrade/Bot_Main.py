@@ -11,6 +11,7 @@ import math
 import os
 import Bot_Backtesting
 import Bot_Strategy
+import Bot_BacktestingSizers
 
 API_Binance = Client(BINANCE["API_Key"], BINANCE["Secret_Key"])
 Frequency_Available = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
@@ -109,6 +110,9 @@ Bot_1 = Bot_Binance.Bot_BinanceClass(BINANCE["API_Key"], BINANCE["Secret_Key"], 
 
 Bot_BackTest = Bot_Backtesting.BacktestingClass(COIN["Crypto"], COIN["Fiat"], FREQUENCY, DATE["StartDate"], DATE["EndDate"])
 Bot_BackTest.SetInitialMoney(1000.00)
+Bot_BackTest.AddComissions(Bot_1.makerCommission)
+Bot_BackTest.AddSizers(Bot_BacktestingSizers.FullMoney)
 Bot_BackTest.AddStrategy(Bot_Strategy.Strategy)
 Bot_BackTest.RunStrategy()
 Bot_BackTest.PrintCurrentMoney()
+Bot_BackTest.PlotBacktestingResults()

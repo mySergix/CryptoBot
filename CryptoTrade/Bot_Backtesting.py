@@ -55,6 +55,14 @@ class BacktestingClass:
     def PrintCurrentMoney(self):
         print("Current Portfolio Value: %.2f" % self.BacktestingCore.broker.getvalue())
 
+    # Añadir las comisiones de Binance
+    def AddComissions(self, Comisiones):
+        self.BacktestingCore.broker.setcommission(commission = Comisiones)
+
+    # Añadir el porcentaje de dinero en cada trade
+    def AddSizers(self, Sizer):
+        self.BacktestingCore.addsizer(Sizer)
+
     # Añadir una estrategia al backtesting
     def AddStrategy(self, Strat):
         self.BacktestingCore.addstrategy(Strat)
@@ -63,4 +71,6 @@ class BacktestingClass:
     def RunStrategy(self):
         self.BacktestingCore.run()
 
-#def RunStrategy(self):
+    # Plotear los resultados obtenidos
+    def PlotBacktestingResults(self):
+        self.BacktestingCore.plot()
