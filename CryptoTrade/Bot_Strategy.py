@@ -6,7 +6,7 @@ class Strategy(bt.Strategy):
 
     def __init__(self):
         self.dataclose = self.datas[0].close
-        self.sma = bt.indicators.SimpleMovingAverage(period = 15)
+        self.sma = bt.indicators.SimpleMovingAverage(period = 17)
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
