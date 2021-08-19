@@ -6,7 +6,7 @@ from binance.enums import *
 import datetime as dt
 import math
 import os
-import btalib
+import talib as ta
 
 # Clase con los datos y las funciones de Binance
 class Bot_BinanceClass:
@@ -168,11 +168,13 @@ class Bot_BinanceClass:
 
     # Calculo Indicador SMA
     def Get_SMA(self, Days):
-        SMA = btalib.sma(self.CandleData, period = Days)
-        self.CandleData["SMA_{}".format(Days)] = SMA.df
+        self.CandleData["SMA_{}".format(Days)] = ta.SMA(self.CandleData["close"], Days)
 
+    def Get_EMA(self, Days):
+        self.CandleData["EMA_{}".format(Days)] = ta.EMA(self.CandleData["close"], Days)
+        
     # Calculo Indicador Estocástico
     def Get_Stochastic(self, Days, pfast, pslow):
-        STO = btalib.stochastic(self.CandleData, period = Days, pfast = pfast, pslow = pslow)
+        STO = ta.stochastic(self.CandleData, period = Days, pfast = pfast, pslow = pslow)
         self.CandleData["STO_k_{}_{}_{}".format(Days, pfast, pslow)] = STO.k
         self.CandleData["STO_d_{}_{}_{}".format(Days, pfast, pslow)] = STO.d

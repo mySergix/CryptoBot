@@ -9,6 +9,8 @@ import csv
 import datetime as dt
 import math
 import os
+import Bot_Backtesting
+import Bot_Strategy
 
 API_Binance = Client(BINANCE["API_Key"], BINANCE["Secret_Key"])
 Frequency_Available = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
@@ -47,7 +49,9 @@ def Download_candles_data(Coin, Fiat, Frequency, StartDate, EndDate):
     #Calcular el numero total de velas a descargar segun el rango de tiempo seleccionado
     FI = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]), int(StartDate[11:13]),
                     int(StartDate[14:16]), int(StartDate[17:19]))
-    FF = EndDate
+    FF = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]), int(EndDate[11:13]),
+                    int(EndDate[14:16]), int(EndDate[17:19]))
+    #EndDate
     Total_Time = math.floor((FF - FI).total_seconds())
     ######ELIMINAR EL ULTIMO CARACTER UNICAMENTE Y VER QUÉ CARACTER ES (m, h, d, W o M)######
 
@@ -103,26 +107,8 @@ else:
 
 Bot_1 = Bot_Binance.Bot_BinanceClass(BINANCE["API_Key"], BINANCE["Secret_Key"], COIN["Crypto"], COIN["Fiat"], FREQUENCY, DataElements)
 
-Bot_1.Get_CandleData()
-Bot_1.Get_SMA(10)
-Bot_1.Get_Stochastic(12, 3, 3)
-print(Bot_1.CandleData)
-#Bot_1.Create_Test_Order("BUY", 100, 100)
-
-
-
-
-
-
-
-
-
-#Bot_1 = BinanceClassFile.BinanceClass(BINANCE["API_Key"], BINANCE["Secret_Key"], COIN["Crypto"], COIN["Fiat"], FREQUENCY, DATE["StartDate"], DATE["EndDate"])
-
-#Bot_1.check_frequency()
-
-#Bot_1.display_pair()
-
-#Bot_1.display_elements()
-
-#Bot_1.get_initial_candle_data()
+Bot_BackTest = Bot_Backtesting.BacktestingClass(COIN["Crypto"], COIN["Fiat"], FREQUENCY, DATE["StartDate"], DATE["EndDate"])
+Bot_BackTest.SetInitialMoney(1000.00)
+Bot_BackTest.AddStrategy(Bot_Strategy.Strategy)
+Bot_BackTest.RunStrategy()
+Bot_BackTest.PrintCurrentMoney()
