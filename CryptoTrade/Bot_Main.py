@@ -41,7 +41,7 @@ def Initial_Data_filter(Data):
     for i in columns:
         df[i] = df[i].astype(float)
 
-    df["start"] = pd.to_datetime(df["time"]*1000000) #Pasar los milisegundos a horario UTC
+    df["start"] = pd.to_datetime(df["time"]*1000000,format= '%Y-%m-%d %H:%M:%S' )
 
     return df
 
@@ -113,6 +113,7 @@ Bot_BackTest.SetInitialMoney(1000.00)
 Bot_BackTest.AddComissions(Bot_1.makerCommission)
 Bot_BackTest.AddSizers(Bot_BacktestingSizers.FullMoney)
 Bot_BackTest.AddStrategy(Bot_Strategy.Strategy)
+Bot_BackTest.AddBotAnalyzers()
 Bot_BackTest.RunStrategy()
 Bot_BackTest.PrintCurrentMoney()
 Bot_BackTest.PlotBacktestingResults()

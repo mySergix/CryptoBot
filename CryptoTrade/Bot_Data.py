@@ -9,15 +9,15 @@ BINANCE = {
 
 #Par de monedas
 COIN = {
-    "Crypto": "DOT",
+    "Crypto": "BTC",
     "Fiat": "USDT"
 }
 
 #Fechas de inicio y final (Año, mes, dia, horas, minutos, segundos)
 DATE = {
-    "StartDate": "2021-08-01 00:00:00",
+    "StartDate": "2021-01-01 10:00:00",
     "EndDate": "2021-08-18 00:00:00"
     #datetime.now()
 }
 
-FREQUENCY = "1h"
+FREQUENCY = "4h"

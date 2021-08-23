@@ -1,6 +1,11 @@
 import backtrader as bt
 import Bot_Strategy
 import datetime as dt
+import backtrader.analyzers as btanalyzers
+import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.font_manager import FontProperties
+import math
 
 class BacktestingClass:
 
@@ -20,20 +25,25 @@ class BacktestingClass:
         if self.Frequency[-1] == "m":
             self.TimeFrame = bt.TimeFrame.Minutes
             self.Compresion = 1
+            self.formatodt = "%Y-%m-%d %H:%M:%S"
         elif self.Frequency[-1] == "h":
             self.TimeFrame = bt.TimeFrame.Minutes
             self.Compresion = 60*int(self.Frequency[0 : len(self.Frequency)-1 : ])
+            self.formatodt = "%Y-%m-%d %H:%M:%S"
         elif self.Frequency[-1] == "d":
             self.TimeFrame = bt.TimeFrame.Days
             self.Compresion = 1
+            self.formatodt = "%Y-%m-%d"
 
         self.Data = bt.feeds.GenericCSVData(
              name = self.Crypto,
              dataname = ("MarketData/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, self.Frequency)),
              timeframe = self.TimeFrame,
+
              compression = self.Compresion,
              fromdate = self.StartDate,
              todate = self.EndDate,
+             dtformat = self.formatodt,
              nullvalue = 0.0,
              datetime = 8,
              high = 3,
@@ -50,6 +60,7 @@ class BacktestingClass:
     # Setear la Cantidad Inicial a invertir
     def SetInitialMoney(self, Money):
         self.BacktestingCore.broker.setcash(Money)
+        self.InitialMoney = Money
 
     # Mostrar por pantalla el valor actual del protfolio
     def PrintCurrentMoney(self):
@@ -69,8 +80,69 @@ class BacktestingClass:
 
     # Correr la estrategia implementada
     def RunStrategy(self):
-        self.BacktestingCore.run()
+        self.strats = self.BacktestingCore.run()
+        self.strat = self.strats[0]
 
     # Plotear los resultados obtenidos
     def PlotBacktestingResults(self):
+        self.Print_MarketAnalyzers()
         self.BacktestingCore.plot()
+
+    def AddBotAnalyzers(self):
+        self.BacktestingCore.addanalyzer(bt.analyzers.TradeAnalyzer, _name="ta")
+
+    def Print_MarketAnalyzers(self):
+
+        results = self.strat.analyzers.ta.get_analysis()
+
+        Ordenes_Cerradas = results.total.closed
+        Ordenes_Positivas = results.won.total
+        Win_Ratio = Ordenes_Positivas/Ordenes_Cerradas
+        Net_Profit = results.pnl.net.total
+        Retorno_Total = (Net_Profit/self.InitialMoney)*100
+
+        Total_Days = math.floor((self.EndDate - self.StartDate).total_seconds())/(3600*24)
+        Ratio = 30/Total_Days
+        Retorno_Mensual = Retorno_Total*Ratio
+
+        fig, ax = plt.subplots(1,1)
+
+        columnas = ["Resultado"]
+
+        filas = ["Ordenes Cerradas",
+                 "Ordenes Positivas",
+                 "Win Ratio",
+                 "Net Profit",
+                 "Retorno Total",
+                 "Inicio Periodo",
+                 "Fin Periodo",
+                 "Frecuencia",
+                 "Retorno Mensual"]
+
+        resultados = [["{}".format(Ordenes_Cerradas)],
+                      ["{}".format(Ordenes_Positivas)],
+                      ["{:.2f} %".format(100*Win_Ratio)],
+                      ["{:.2f} {}".format(Net_Profit, self.Fiat)],
+                      ["{:.2f} %".format(Retorno_Total)],
+                      ["{}".format(self.StartDate)],
+                      ["{}".format(self.EndDate)],
+                      ["{}".format(self.Frequency)],
+                      ["{:.2f} %".format(Retorno_Mensual)]]
+
+        df = pd.DataFrame(resultados, columns = columnas)
+        ax.axis('tight')
+        ax.axis('off')
+        ax.table = plt.table(cellText = df.values,
+                          rowLabels = filas,
+                          colLabels = columnas,
+                          colWidths =  None,
+                          loc = "center")
+        ax.table.set_fontsize(20)
+        ax.table.scale(1.8, 1.8)
+
+        for (row, col), cell in ax.table.get_celld().items():
+            if (row == 0) or (col == -1):
+                cell.set_text_props(fontproperties=FontProperties(weight='bold'))
+
+        ax.table.auto_set_column_width(col=list(range(len(df.columns))))
+        plt.title("Resultados Backtesting", fontsize = 30, fontweight="bold")
