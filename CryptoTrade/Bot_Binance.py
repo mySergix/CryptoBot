@@ -154,7 +154,7 @@ class Bot_BinanceClass:
         f1 = open("OrdersData/Registro_{}_{}_BOT.txt".format(self.Crypto+self.Fiat, self.Frequency), "a+")
 
         if os.stat("OrdersData/Registro_{}_{}_BOT.txt".format(self.Crypto+self.Fiat, self.Frequency)).st_size == 0:
-            f1.write("FECHA \t\t\t\t\t\tORDEN \t PRECIO \t CANTIDAD_CRYPTO \t CANTIDAD_FIAT \t PRECIO_TOTAL \t COMISIÓN \t MONEDA COMISIÓN \n")
+            f1.write("FECHA \t\t\t TIPO_ORDEN \t ORDEN \t PRECIO \t CANTIDAD_CRYPTO \t CANTIDAD_FIAT \t COMISIÓN \t MONEDA COMISIÓN \n")
 
         f1.write("{} \t{} \t {} \t\t {} \t\t\t\t {} \t\t\t {} \t\t {} \t\t {} \n".format(str(dt.datetime.now()), tipo_orden_ejecutada, side, str(precio_average),
                                                        str(cantidad_crypto), str(cantidad_fiat), comision, moneda_comision))

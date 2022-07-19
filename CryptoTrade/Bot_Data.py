@@ -15,9 +15,9 @@ COIN = {
 
 #Fechas de inicio y final (Año, mes, dia, horas, minutos, segundos)
 DATE = {
-    "StartDate": "2021-01-01 10:00:00",
-    "EndDate": "2021-08-18 00:00:00"
+    "StartDate": "2022-05-01 10:00:00",
+    "EndDate": "2022-07-15 00:00:00"
     #datetime.now()
 }
 
-FREQUENCY = "4h"
+FREQUENCY = "15m"

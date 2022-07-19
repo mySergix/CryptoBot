@@ -82,6 +82,7 @@ class BacktestingClass:
     def RunStrategy(self):
         self.strats = self.BacktestingCore.run()
         self.strat = self.strats[0]
+        self.results = self.strat.analyzers.ta.get_analysis()
 
     # Plotear los resultados obtenidos
     def PlotBacktestingResults(self):
@@ -90,6 +91,12 @@ class BacktestingClass:
 
     def AddBotAnalyzers(self):
         self.BacktestingCore.addanalyzer(bt.analyzers.TradeAnalyzer, _name="ta")
+
+    def ExtractBacktestingResults(self):
+        try:
+            return self.results.pnl.net.total
+        except KeyError:
+            return 0.0
 
     def Print_MarketAnalyzers(self):
 
