@@ -8,10 +8,10 @@ import math
 import os
 import talib as ta
 
-# Clase con los datos y las funciones de Binance
+# Class with Binance data and functions
 class Bot_BinanceClass:
 
-    #CONSTRUCTOR
+    # CONSTRUCTOR
     #_________________________________________________________________________________________________
     def __init__(self, API_Key, Secret_Key, Crypto, Fiat, Frequency, DataElements):
 
@@ -26,7 +26,7 @@ class Bot_BinanceClass:
 
         self.api_binance = Client(self.API_Key, self.Secret_Key)
 
-        # VARIABLES SOBRE LAS OPERACIONES DE COMPRA Y VENTA
+        # Variables on purchase and sale operations
         self.BUY = SIDE_BUY
         self.SELL = SIDE_SELL
 
@@ -60,9 +60,9 @@ class Bot_BinanceClass:
         self.FiatBalance = self.api_binance.get_asset_balance(self.Fiat)["free"]
 
     #________________________________________________________________________________________________________________
-    #FIN CONSTRUCTOR
+    # END CONSTRUCTOR
 
-    # Filtrado de datos descargados desde BINANCE
+    # Filtering of data downloaded from Binance
     def Data_filter(Data):
         df = pd.DataFrame(Data)
         df = df.drop([6, 7, 9, 10, 11], axis=1)
@@ -77,21 +77,21 @@ class Bot_BinanceClass:
 
         return df
 
-    # Actualizar los datos de la ultima vela registrada por Binance
+    # Update the data of the last candle registered by Binance
     def Update_data(self):
         new_candle = self.api_binance.get_klines(symbol=self.Crypto+self.Fiat, interval=self.Frequency, limit=1)
-        # limit = 1 -> se descarga los datos de la ultima vela
-        # interval -> intervalo de esa vela (frecuencia)
-        self.df.drop(index = 0, inplace = True) #Quitamos la primera vela de todas y movemos el resto 1 indice hacia abajo
+        # limit = 1 -> the data of the last candle is downloaded
+        # interval -> interval of that candle (frquency)
+        self.df.drop(index = 0, inplace = True) # The first candle is removed and the rest are moved 1 index down
         self.df = self.df.append(self.Data_filter(new_candle), ignore_index=True)
         self.df.index = list(range(self.DataElements))
 
-    # Actualizar los datos sobre la cantidad de monedas del activo seleccionado
+    # Update the data on the number of coins of the selected asset
     def Update_account_balance(self):
         self.CryptoBalance = self.api_binance.get_asset_balance(self.Crypto)["free"]
         self.FiatBalance = self.api_binance.get_asset_balance(self.Fiat)["free"]
 
-    # Crear una orden de mercado genérica (Market normalmente)
+    # Create a generic market order (usually Market)
     def Create_Market_Order(self, OperationSide, Quantity):
         try:
             self.OrderName = self.api_binance.create_order(
@@ -104,7 +104,7 @@ class Bot_BinanceClass:
         except BinanceAPIException as e:
             print(e)
 
-    # Crear una orden LIMIT en el mercado
+    # Create a market LIMIT order
     def Create_Limit_Order(self, OperationSide, Quantity, Price):
         try:
             self.OrderName = self.api_binance.create_order(
@@ -119,7 +119,7 @@ class Bot_BinanceClass:
         except BinanceAPIException as e:
             print(e)
 
-    # Crear una test order para comprobar que funciona
+    # Create a test order to verify that it works
     def Create_Test_Order(self, OperationSide, Quantity, Price):
         try:
             self.New_Order = self.api_binance.create_test_order(
@@ -132,24 +132,24 @@ class Bot_BinanceClass:
         except BinanceAPIException as e:
             print(e)
 
-    # Notificar que se acaba de fillear una orden
+    # Notify that an order hast just been filled
     def Notify_order(self):
         Total_price = 0
         Total_quantity = 0
         Average_price = 0
         Comisiones_Totales = 0
 
-        for i in self.New_Order["fills"]: #Es necesario calcular el mean de la orden
+        for i in self.New_Order["fills"]: # It is necessary to calculate the mean of the order
             Comisiones_Totales += float(i["commission"])
             Total_quantity += float(i["qty"])
             Total_price += float(i["price"])*float(i["qty"])
 
         Average_price = Total_price/Total_quantity
 
-        # Registro de los datos de la orden
+        # Register the order data
         self.registro_orden(self.New_Order["type"], self.New_Order["side"], Comisiones_Totales, self.New_Order["commissionAsset"], Average_price, Total_quantity, Total_price)
 
-    # Registrar todas las ordenes de compra y venta que realice el Bot
+    # Register all the purchase and sale orders made by the bot
     def Order_register(self, tipo_orden_ejecutada, side, comision, moneda_comision, precio_average, cantidad_crypto, cantidad_fiat):
         f1 = open("OrdersData/Registro_{}_{}_BOT.txt".format(self.Crypto+self.Fiat, self.Frequency), "a+")
 
@@ -161,19 +161,19 @@ class Bot_BinanceClass:
 
         f1.close()
 
-    # Lectura de los datos de las velas descargados
+    # Reading the downloaded candlestick data
     def Get_CandleData(self):
         self.CandleData = pd.read_csv("MarketData/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, self.Frequency))
         self.DataCandles = len(self.CandleData)
 
-    # Calculo Indicador SMA
+    # Calculation of the SMA Indicator
     def Get_SMA(self, Days):
         self.CandleData["SMA_{}".format(Days)] = ta.SMA(self.CandleData["close"], Days)
 
     def Get_EMA(self, Days):
         self.CandleData["EMA_{}".format(Days)] = ta.EMA(self.CandleData["close"], Days)
-        
-    # Calculo Indicador Estocástico
+
+    # Calculation of Stochastic Indicator
     def Get_Stochastic(self, Days, pfast, pslow):
         STO = ta.stochastic(self.CandleData, period = Days, pfast = pfast, pslow = pslow)
         self.CandleData["STO_k_{}_{}_{}".format(Days, pfast, pslow)] = STO.k

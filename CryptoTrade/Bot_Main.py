@@ -1,6 +1,6 @@
-#Codigo main del bot de trading
+# TRADING BOT MAIN CODE
 
-#Importación de otros archivos del código
+# Importing other code files
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
@@ -19,7 +19,7 @@ import Bot_BacktestingSizers
 API_Binance = Client(BINANCE["API_Key"], BINANCE["Secret_Key"])
 Frequency_Available = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
 
-# Comprobación de una frecuencia correcta
+# Checking for a correct frequency
 def Check_frequency(Frequency_Ava, Frequency):
     check = False
     for i in range(len(Frequency_Ava)):
@@ -27,13 +27,13 @@ def Check_frequency(Frequency_Ava, Frequency):
             check = True
 
     if check == True:
-        print("La frecuencia seleccionada de {} es correcta. \n".format(Frequency))
+        print("The selected frequency of {} is correct. \n".format(Frequency))
     else:
-        print("La frecuencia seleccionada de {} NO es correcta. \n".format(Frequency))
+        print("The selected frequency of {} is NOT correct. \n".format(Frequency))
 
     return check
 
-# Filtrado de los datos descargados
+# Filtering of downloaded data
 def Initial_Data_filter(Data):
     df = pd.DataFrame(Data)
     df = df.drop([6, 7, 9, 10, 11], axis=1)
@@ -50,12 +50,12 @@ def Initial_Data_filter(Data):
 
 def Download_candles_data(Coin, Fiat, Frequency, StartDate, EndDate):
 
-    #Calcular el numero total de velas a descargar segun el rango de tiempo seleccionado
+    # Calculate the total number of candles to download according to the selected time range
     FI = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]), int(StartDate[11:13]),
                     int(StartDate[14:16]), int(StartDate[17:19]))
     FF = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]), int(EndDate[11:13]),
                     int(EndDate[14:16]), int(EndDate[17:19]))
-    #EndDate
+    # EndDate
     Total_Time = math.floor((FF - FI).total_seconds())
     ######ELIMINAR EL ULTIMO CARACTER UNICAMENTE Y VER QUÉ CARACTER ES (m, h, d, W o M)######
 
@@ -93,24 +93,24 @@ def Download_candles_data(Coin, Fiat, Frequency, StartDate, EndDate):
         os.mkdir("MarketData/{}{}/".format(Coin, Fiat))
 
 
-    #with open("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency), "w", encoding = "UTF8", newline="") as file:
+    # with open("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency), "w", encoding = "UTF8", newline="") as file:
     #    writer = csv.writer(file)
 
     if os.path.exists("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency)):
         os.remove("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
-    
+
     Data.to_csv("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
 
     return DataElements
-    
-# FIN FUNCIONES MAIN_BOT
+
+# END MAIN BOT FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
-# INICIO MAIN_BOT
+# BEGINNING OF THE MAIN BOT
 
 if Check_frequency(Frequency_Available, FREQUENCY):
     DataElements = Download_candles_data(COIN["Crypto"], COIN["Fiat"], FREQUENCY, DATE["StartDate"], DATE["EndDate"])
 else:
-    print("Error en la frecuencia seleccionada ({})\n ".format(FREQUENCY))
+    print("Error for the selected frequency ({})\n ".format(FREQUENCY))
 
 Bot_1 = Bot_Binance.Bot_BinanceClass(BINANCE["API_Key"], BINANCE["Secret_Key"], COIN["Crypto"], COIN["Fiat"], FREQUENCY, DataElements)
 
@@ -136,7 +136,7 @@ Best_Individuals = pd.DataFrame(Best_Individuals, columns=['FastSMA', 'SlowSMA',
 
 for i in range(N_Generations):
     for j in range(N_Pop):
-          
+
         Bot_BackTest = Bot_Backtesting.BacktestingClass(COIN["Crypto"], COIN["Fiat"], FREQUENCY, DATE["StartDate"], DATE["EndDate"])
 
         Bot_BackTest.AddComissions(Bot_1.makerCommission)
@@ -146,11 +146,11 @@ for i in range(N_Generations):
         SMA_Params['InitialMoney'][j] = Bot_BackTest.BacktestingCore.broker.getvalue()
         Bot_BackTest.BacktestingCore.addstrategy(Bot_Strategy.Strategy, FastSMA=SMA_Params['FastSMA'][j], SlowSMA=SMA_Params['SlowSMA'][j], percents=100)
         Bot_BackTest.RunStrategy()
-        
+
         Net_Profit = Bot_BackTest.ExtractBacktestingResults()
         SMA_Params['NetProfit'][j] = Net_Profit
         SMA_Params['FinalMoney'][j] = Bot_BackTest.BacktestingCore.broker.getvalue()
-        
+
     Best_Individuals = SMA_Params.nlargest(n=int(N_Pop*P_Best), columns=['NetProfit'])
     SMA_Params = SMA_Params.sort_values(by=['NetProfit'], ascending=False)
     SMA_Params = SMA_Params.reset_index(drop = True)
@@ -160,10 +160,10 @@ for i in range(N_Generations):
     for k in range(int((1.0 - P_Best) * N_Pop)):
         Father1 = Best_Individuals.sample(n=1)
         Father2 = Best_Individuals.sample(n=1)
-        
+
         SMA_Params['FastSMA'][k + int(P_Best*N_Pop)] = math.floor((int(Father1['FastSMA']) + int(Father2['FastSMA'])) / 2)
         SMA_Params['SlowSMA'][k + int(P_Best*N_Pop)] = math.floor((int(Father1['SlowSMA']) + int(Father2['SlowSMA'])) / 2)
-    
+
         if random.uniform(0, 1) <= P_Mut:
             if random.uniform(0, 1) <= 0.50:
                 SMA_Params['FastSMA'][k + int(P_Best*N_Pop)] = random.randint(FastSMA_Range[0], FastSMA_Range[1])

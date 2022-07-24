@@ -2,5 +2,5 @@ from backtrader.sizers import PercentSizer
 
 class FullMoney(PercentSizer):
     params = (
-        ("percents", 100),
+        ("percents", 2),
     )

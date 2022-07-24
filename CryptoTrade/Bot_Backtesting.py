@@ -9,7 +9,7 @@ import math
 
 class BacktestingClass:
 
-    #CONSTRUCTOR
+    # CONSTRUCTOR
     #_________________________________________________________________________________________________
     def __init__(self, Crypto, Fiat, Frequency, StartDate, EndDate):
         self.Crypto = Crypto
@@ -55,36 +55,36 @@ class BacktestingClass:
         self.BacktestingCore.adddata(self.Data)
 
         #________________________________________________________________________________________________________________
-        #FIN CONSTRUCTOR
+        # END CONSTRUCTOR
 
-    # Setear la Cantidad Inicial a invertir
+    # Set the initial quantity to invest
     def SetInitialMoney(self, Money):
         self.BacktestingCore.broker.setcash(Money)
         self.InitialMoney = Money
 
-    # Mostrar por pantalla el valor actual del protfolio
+    # Show on screen the current portfolio value
     def PrintCurrentMoney(self):
         print("Current Portfolio Value: %.2f" % self.BacktestingCore.broker.getvalue())
 
-    # Añadir las comisiones de Binance
+    # Add Binance comissions
     def AddComissions(self, Comisiones):
         self.BacktestingCore.broker.setcommission(commission = Comisiones)
 
-    # Añadir el porcentaje de dinero en cada trade
+    # Add the money percentage of each trade
     def AddSizers(self, Sizer):
         self.BacktestingCore.addsizer(Sizer)
 
-    # Añadir una estrategia al backtesting
+    # Add a backtesting strategy
     def AddStrategy(self, Strat):
         self.BacktestingCore.addstrategy(Strat)
 
-    # Correr la estrategia implementada
+    # Run the implemented strategy
     def RunStrategy(self):
         self.strats = self.BacktestingCore.run()
         self.strat = self.strats[0]
         self.results = self.strat.analyzers.ta.get_analysis()
 
-    # Plotear los resultados obtenidos
+    # Plot the obtained results
     def PlotBacktestingResults(self):
         self.Print_MarketAnalyzers()
         self.BacktestingCore.plot()
@@ -114,17 +114,17 @@ class BacktestingClass:
 
         fig, ax = plt.subplots(1,1)
 
-        columnas = ["Resultado"]
+        columnas = ["Results"]
 
-        filas = ["Ordenes Cerradas",
-                 "Ordenes Positivas",
+        filas = ["Closed Orders",
+                 "Won Orders",
                  "Win Ratio",
                  "Net Profit",
-                 "Retorno Total",
-                 "Inicio Periodo",
-                 "Fin Periodo",
-                 "Frecuencia",
-                 "Retorno Mensual"]
+                 "Total Return",
+                 "Start Period",
+                 "End Period",
+                 "Frequency",
+                 "Mensual Return"]
 
         resultados = [["{}".format(Ordenes_Cerradas)],
                       ["{}".format(Ordenes_Positivas)],
@@ -152,4 +152,4 @@ class BacktestingClass:
                 cell.set_text_props(fontproperties=FontProperties(weight='bold'))
 
         ax.table.auto_set_column_width(col=list(range(len(df.columns))))
-        plt.title("Resultados Backtesting", fontsize = 30, fontweight="bold")
+        plt.title("Backtesting Results", fontsize = 30, fontweight="bold")
