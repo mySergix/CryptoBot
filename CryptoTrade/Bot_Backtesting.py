@@ -67,8 +67,8 @@ class BacktestingClass:
         print("Current Portfolio Value: %.2f" % self.BacktestingCore.broker.getvalue())
 
     # Add Binance comissions
-    def AddComissions(self, Comisiones):
-        self.BacktestingCore.broker.setcommission(commission = Comisiones)
+    def AddComissions(self, Comissions):
+        self.BacktestingCore.broker.setcommission(commission = Comissions)
 
     # Add the money percentage of each trade
     def AddSizers(self, Sizer):
