@@ -4,11 +4,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-maxWon = 60 # %
-minWon = 45 # %
+minWon = 48 # %
+maxWon = 52 # %
+if minWon > maxWon:
+    minWon,maxWon = maxWon,minWon
+
 div = 2
 quan = (maxWon - minWon) * div + 1
-percWonTrades = [minWon + i / 2 for i in range(quan)] # %
+percWonTrades = []
+for i in range(quan):
+    perc = minWon + i / div # %
+    percWonTrades.append(perc)
 
 initialInvestment = 15000 # u.m.
 isComission = True
@@ -16,14 +22,24 @@ makerComission = 0.018 # %
 maxTakeProfitPer = 10 # %
 
 # LIMITS DEFINITION
-maxPer = 50 # Maximum percentage
+maxPer = 15 # Maximum percentage
 minPer = 0 # Minimum percentage
-numDiv = 2 # Number of divisions in each % unit
+numDiv = 100 # Number of divisions in each % unit
+perBetTrade = []
 quantity = (maxPer - minPer) * numDiv
-perBetTrade = [(maxPer - minPer) * (i + 1) / quantity for i in range(quantity)]
+# In case of minimum percentage being null, the first trade percentage must be 0.5%
+if minPer == 0:
+    for i in range(quantity):
+        percentage = minPer + (maxPer - minPer) * (i + 1) / quantity
+        perBetTrade.append(percentage)
+else:
+    quantity2 = int(quantity + 1)
+    for i in range(quantity2):
+        percentage = minPer + (maxPer - minPer) * i / (quantity2 - 1)
+        perBetTrade.append(percentage)
 
-numTrades = 10
-numIt = 2;
+numTrades = 5648
+numIt = 10;
 
 results = [ [0, 0, 0, 0] for i in range(len(percWonTrades) * len(perBetTrade) * numIt)]
 countPos = -1
@@ -44,37 +60,55 @@ for botPerc in percWonTrades:
                     betTrade = currentCapital * per;
                 winLossNum = random.uniform(0, 100)
                 if winLossNum > botPerc:
-                    profitPer = - random.uniform(0, maxTakeProfitPer)
+                    profitPer = - random.uniform(0, maxTakeProfitPer) / 100
                 else:
-                    profitPer = random.uniform(0, maxTakeProfitPer)
+                    profitPer = random.uniform(0, maxTakeProfitPer) / 100
                     winCount += 1
                 if isComission:
-                    finalTrade = betTrade * (1 + profitPer) * (1 - makerComission/100)
+                    finalTrade = betTrade * profitPer * (1 - makerComission/100)
                 else:
-                    finalTrade = betTrade * (1 + profitPer)
+                    finalTrade = betTrade * profitPer
                 currentCapital = currentCapital + finalTrade
 
             ROI = (currentCapital - initialInvestment) / initialInvestment * 100
             winPer = winCount / numTrades * 100
             countPos += 1
-            results[countPos] = [botPerc, per * 100, round(ROI, 2), winPer]
+            results[countPos] = [botPerc, per * 100, round(ROI, 2), round(winPer,2)]
 
 Results = pd.DataFrame(results, columns = ["Perc Won", "Bet Trade Perc", "ROI", "Win Perc"])
 pd.set_option('display.max_rows', None, 'display.max_columns', None)
-print(Results)
 
 sns.set_theme(style="dark")
-sns.set_palette("bright")
+sns.color_palette("viridis", as_cmap=True)
 
-#figureResults, ax = plt.subplots()
+figureResults, ax = plt.subplots()
 
-#sns.lineplot(perBetTrade[], ROI[0,:], linewidth=2.0, label="ROI (%)")
+for botPerc in percWonTrades:
+    perBetTradeAnalysis = []
+    ROIAnalysis = []
+    ResultsFiltered = Results[ Results['Perc Won'] == botPerc ]
 
-#ax.set_title("ROI vs Bet Trade %",size=14, fontweight="bold")
-#ax.set_ylabel("ROI (%)",size=12, fontweight='bold')
-#ax.set_xlabel("Bet Trade %",size=12, fontweight='bold')
-#ax.set_xlim(minPer, maxPer)
-#ax.grid()
-#ax.legend(shadow=True, fontsize=16)
+    for per in perBetTrade:
+        ResultsFiltered2 = ResultsFiltered[ ResultsFiltered['Bet Trade Perc'] == per ]
+        ROIMean = ResultsFiltered2["ROI"].mean()
+        perBetTradeAnalysis.append(per)
+        ROIAnalysis.append(ROIMean)
 
-#plt.show()
+    sns.lineplot(perBetTradeAnalysis, ROIAnalysis, linewidth=2.0, label="{}".format(botPerc))
+
+
+# sns.set_theme(style="dark")
+# sns.set_palette("bright")
+#
+# figureResults, ax = plt.subplots()
+#
+# sns.lineplot(perBetTrade[], ROI[0,:], linewidth=2.0, label="ROI (%)")
+#
+ax.set_title("ROI vs Bet Trade %",size=14, fontweight="bold")
+ax.set_ylabel("ROI (%)",size=12, fontweight='bold')
+ax.set_xlabel("Bet Trade %",size=12, fontweight='bold')
+ax.set_xlim(minPer, maxPer)
+ax.grid()
+ax.legend(shadow=True, fontsize=16)
+
+plt.show()

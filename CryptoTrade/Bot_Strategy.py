@@ -5,14 +5,14 @@ import pandas as pd
 class Strategy(bt.Strategy):
 
     params = (
-        ('FastSMA', None), 
+        ('FastSMA', None),
         ('SlowSMA', None),
         ("percents", 100)
     )
 
     def __init__(self):
         self.dataclose = self.datas[0].close
-        
+
         self.FastSMA = self.params.FastSMA
         self.SlowSMA = self.params.SlowSMA
 
