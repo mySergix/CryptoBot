@@ -17,16 +17,17 @@ for i in range(quan):
     percWonTrades.append(perc)
 
 initialInvestment = 15000 # u.m.
-isComission = True
+isComission = False
 makerComission = 0.018 # %
 maxTakeProfitPer = 10 # %
 
 # LIMITS DEFINITION
-maxPer = 15 # Maximum percentage
-minPer = 0 # Minimum percentage
-numDiv = 100 # Number of divisions in each % unit
+maxPer = 6 # Maximum percentage
+minPer = 5 # Minimum percentage
+numDiv = 2 # Number of divisions in each % unit
 perBetTrade = []
 quantity = (maxPer - minPer) * numDiv
+
 # In case of minimum percentage being null, the first trade percentage must be 0.5%
 if minPer == 0:
     for i in range(quantity):
@@ -39,7 +40,7 @@ else:
         perBetTrade.append(percentage)
 
 numTrades = 5648
-numIt = 10;
+numIt = 5
 
 results = [ [0, 0, 0, 0] for i in range(len(percWonTrades) * len(perBetTrade) * numIt)]
 countPos = -1
@@ -75,40 +76,56 @@ for botPerc in percWonTrades:
             countPos += 1
             results[countPos] = [botPerc, per * 100, round(ROI, 2), round(winPer,2)]
 
-Results = pd.DataFrame(results, columns = ["Perc Won", "Bet Trade Perc", "ROI", "Win Perc"])
+Results = pd.DataFrame(results, columns = ["Set Win Perc", "Bet Trade Perc", "ROI", "Real Win Perc"])
 pd.set_option('display.max_rows', None, 'display.max_columns', None)
+print(Results)
 
 sns.set_theme(style="dark")
 sns.color_palette("viridis", as_cmap=True)
 
 figureResults, ax = plt.subplots()
 
-for botPerc in percWonTrades:
-    perBetTradeAnalysis = []
-    ROIAnalysis = []
-    ResultsFiltered = Results[ Results['Perc Won'] == botPerc ]
+###### STUDIES ######
+# STUDY ROI vs BET TRADE vs PERCENTAGE WON --> 1
+# STUDY ROI vs WIN PERCENTAGE vs PERCENTAGE WON for every BET TRADE --> 2
 
+studyNum = 2
+
+if studyNum == 1:
+    for botPerc in percWonTrades:
+        perBetTradeAnalysis = []
+        ROIAnalysis = []
+        ResultsFiltered = Results[ Results['Set Win Perc'] == botPerc ]
+
+        for per in perBetTrade:
+            ResultsFiltered2 = ResultsFiltered[ ResultsFiltered['Bet Trade Perc'] == per ]
+            ROIMean = ResultsFiltered2["ROI"].mean()
+            perBetTradeAnalysis.append(per)
+            ROIAnalysis.append(ROIMean)
+
+        sns.lineplot(perBetTradeAnalysis, ROIAnalysis, linewidth=2.0, label="{}".format(botPerc))
+
+    ax.set_title("ROI vs Bet Trade %", size=14, fontweight="bold")
+    ax.set_ylabel("ROI (%)", size=12, fontweight='bold')
+    ax.set_xlabel("Bet Trade %", size=12, fontweight='bold')
+    ax.set_xlim(minPer, maxPer)
+    ax.grid()
+    ax.legend(shadow=True, fontsize=16)
+
+    plt.show()
+
+elif studyNum == 2:
     for per in perBetTrade:
-        ResultsFiltered2 = ResultsFiltered[ ResultsFiltered['Bet Trade Perc'] == per ]
-        ROIMean = ResultsFiltered2["ROI"].mean()
-        perBetTradeAnalysis.append(per)
-        ROIAnalysis.append(ROIMean)
+        ResultsFiltered = Results [ Results [ 'Bet Trade Perc'] == per ]
 
-    sns.lineplot(perBetTradeAnalysis, ROIAnalysis, linewidth=2.0, label="{}".format(botPerc))
+        #ResultsFiltered2 = ResultsFiltered.groupby('')
 
+        sns.lineplot(ResultsFiltered['Real Win Perc'], ResultsFiltered['ROI'], linewidth=2.0, label="{}".format(per))
+        ax.set_title("ROI vs Real Win (%)", size=14, fontweight="bold")
+        ax.set_ylabel("ROI (%)", size=12, fontweight='bold')
+        ax.set_xlabel("Real Win (%)", size=12, fontweight='bold')
+        ax.set_xlim(minWon - 2, maxWon + 2)
+        ax.grid()
+        ax.legend(shadow=True, fontsize=16)
 
-# sns.set_theme(style="dark")
-# sns.set_palette("bright")
-#
-# figureResults, ax = plt.subplots()
-#
-# sns.lineplot(perBetTrade[], ROI[0,:], linewidth=2.0, label="ROI (%)")
-#
-ax.set_title("ROI vs Bet Trade %",size=14, fontweight="bold")
-ax.set_ylabel("ROI (%)",size=12, fontweight='bold')
-ax.set_xlabel("Bet Trade %",size=12, fontweight='bold')
-ax.set_xlim(minPer, maxPer)
-ax.grid()
-ax.legend(shadow=True, fontsize=16)
-
-plt.show()
+        plt.show()
