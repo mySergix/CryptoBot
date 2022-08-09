@@ -11,7 +11,8 @@ class BacktestingClass:
 
     # CONSTRUCTOR
     #_________________________________________________________________________________________________
-    def __init__(self, Crypto, Fiat, Frequency, StartDate, EndDate):
+    def __init__(self, BINANCE_KEYS, Crypto, Fiat, Frequency, StartDate, EndDate):
+        self.BINANCE_KEYS = BINANCE_KEYS
         self.Crypto = Crypto
         self.Fiat = Fiat
         self.Frequency = Frequency

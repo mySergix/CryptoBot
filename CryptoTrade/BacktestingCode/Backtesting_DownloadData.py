@@ -9,6 +9,8 @@ import math
 import os
 import random
 from binance.client import Client
+from binance.exceptions import BinanceAPIException
+from binance.enums import *
 
 # Checking for a correct frequency
 def Check_frequency(Frequency_Ava, Frequency):
@@ -40,7 +42,9 @@ def Initial_Data_filter(Data):
     return df
 
 # Download the Candlestick data into csv files
-def Download_candles_data(Coin, Fiat, Frequency, StartDate, EndDate):
+def Download_candles_data(BINANCE_KEYS, Coin, Fiat, Frequency, StartDate, EndDate):
+
+    API_Binance = Client(BINANCE_KEYS["API_Key"], BINANCE_KEYS["Secret_Key"])
 
     # Calculate the total number of candles to download according to the selected time range
     FI = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]), int(StartDate[11:13]),
@@ -94,9 +98,9 @@ def Download_candles_data(Coin, Fiat, Frequency, StartDate, EndDate):
     return DataElements
 
 # Function to get the Candlestick data
-def Get_CandlestickData(Frequency_Avail, Frequency, Coin_Cr, Coin_Fi, Date_Start, Date_End):
+def Get_CandlestickData(BINANCE_KEYS, Frequency_Avail, Frequency, Coin_Cr, Coin_Fi, Date_Start, Date_End):
 
     if Check_frequency(Frequency_Avail, Frequency):
-        DataElements = Download_candles_data(Coin_Cr, Coin_Fi, Frequency, Date_Start, Date_End)
+        DataElements = Download_candles_data(BINANCE_KEYS, Coin_Cr, Coin_Fi, Frequency, Date_Start, Date_End)
     else:
         print("Error for the selected frequency ({})\n ".format(Frequency))

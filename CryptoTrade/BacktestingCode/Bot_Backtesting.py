@@ -17,7 +17,7 @@ import Bot_Strategy
 class BacktestingClass:
 
     # CONSTRUCTOR
-    def __init__(self, Crypto, Fiat, StartDate, EndDate):
+    def __init__(self, BINANCE_KEYS, Crypto, Fiat, StartDate, EndDate):
 
         self.Crypto = Crypto
         self.Fiat = Fiat
@@ -28,7 +28,7 @@ class BacktestingClass:
 
         self.BacktestingCore = bt.Cerebro()
 
-        DataFrequency = ['15m', '1h', '4h']
+        DataFrequency = ['15m', '1h']
 
         for Freq in DataFrequency:
             if Freq[-1] == "m":
@@ -44,14 +44,14 @@ class BacktestingClass:
                 self.Compresion = 1 # Revisar lo de compression
                 self.formatodt = "%Y-%m-%d"
 
-            Backtesting_DownloadData.Get_CandlestickData(Frequency_Available, Freq, Crypto, Fiat, StartDate, EndDate)
+            Backtesting_DownloadData.Get_CandlestickData(BINANCE_KEYS, Frequency_Available, Freq, Crypto, Fiat, StartDate, EndDate)
 
             # Data feeded into the backtesting bot
-            self.globals()['Data_' + '{}'.format(Freq)] = bt.feeds.GenericCSVData(
+            Data = bt.feeds.GenericCSVData(
                 name = self.Crypto,
                 dataname = ("MarketData/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
                 timeframe = self.TimeFrame,
-                compression = self.Compresion,
+                compression = self.Compresion, # REVISAR LO DE LA COMPRESION
                 fromdate = self.StartDate,
                 todate = self.EndDate,
                 dtformat = self.formatodt,
@@ -62,8 +62,9 @@ class BacktestingClass:
                 open = 2,
                 close = 5
             )
-
-            self.BacktestingCore.adddata(self.Data)
+           
+            # globals()['Data_' + '{}'.format(Freq)]
+            self.BacktestingCore.adddata(Data)
 
         #________________________________________________________________________________________________________________
         # END CONSTRUCTOR
