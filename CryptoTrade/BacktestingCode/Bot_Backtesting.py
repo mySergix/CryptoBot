@@ -8,6 +8,7 @@ import backtrader.analyzers as btanalyzers
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import datetime as dt
+import csv
 
 # Files imported
 from Backtesting_Data import Frequency_Available
@@ -17,18 +18,17 @@ import Bot_Strategy
 class BacktestingClass:
 
     # CONSTRUCTOR
-    def __init__(self, BINANCE_KEYS, Crypto, Fiat, StartDate, EndDate):
+    def __init__(self, Crypto, Fiat, StartDate, EndDate):
 
         self.Crypto = Crypto
         self.Fiat = Fiat
-        self.StartDate = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]), int(StartDate[11:13]),
-                        int(StartDate[14:16]), int(StartDate[17:19]))
-        self.EndDate = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]), int(EndDate[11:13]),
-                        int(EndDate[14:16]), int(EndDate[17:19]))
-
+        #self.StartDate = StartDate.dt.strftime('%Y-%m-%d %H:%M:%S')     
+        #self.EndDate = EndDate.dt.strftime('%Y-%m-%d %H:%M:%S')
+        self.StartDate = StartDate
+        self.EndDate = EndDate
         self.BacktestingCore = bt.Cerebro()
 
-        DataFrequency = ['15m', '1h']
+        DataFrequency = ['1d']
 
         for Freq in DataFrequency:
             if Freq[-1] == "m":
@@ -44,25 +44,16 @@ class BacktestingClass:
                 self.Compresion = 1 # Revisar lo de compression
                 self.formatodt = "%Y-%m-%d"
 
-            Backtesting_DownloadData.Get_CandlestickData(BINANCE_KEYS, Frequency_Available, Freq, Crypto, Fiat, StartDate, EndDate)
-
+            Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, Crypto, Fiat, StartDate, EndDate)
+            # Backtesting_DownloadData.Get_CandlestickData_Stocks(Frequency_Available, Freq, 'TSLA', StartDate, EndDate)
+            
             # Data feeded into the backtesting bot
-            Data = bt.feeds.GenericCSVData(
-                name = self.Crypto,
-                dataname = ("MarketData/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
-                timeframe = self.TimeFrame,
-                compression = self.Compresion, # REVISAR LO DE LA COMPRESION
-                fromdate = self.StartDate,
-                todate = self.EndDate,
-                dtformat = self.formatodt,
-                nullvalue = 0.0,
-                datetime = 8,
-                high = 3,
-                low = 4,
-                open = 2,
-                close = 5
-            )
-           
+            Data = bt.feeds.YahooFinanceCSVData(
+                dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
+                fromdate = dt.datetime(2022, 1, 1),
+                todate = dt.datetime(2022, 7, 15),
+                reverse = False)
+              
             # globals()['Data_' + '{}'.format(Freq)]
             self.BacktestingCore.adddata(Data)
 
@@ -114,13 +105,14 @@ class BacktestingClass:
 
         results = self.strat.analyzers.ta.get_analysis()
 
+        print(results)
         Ordenes_Cerradas = results.total.closed
         Ordenes_Positivas = results.won.total
         Win_Ratio = Ordenes_Positivas/Ordenes_Cerradas
         Net_Profit = results.pnl.net.total
         Retorno_Total = (Net_Profit/self.InitialMoney)*100
 
-        Total_Days = math.floor((self.EndDate - self.StartDate).total_seconds())/(3600*24)
+        Total_Days = (dt.datetime(2022, 7, 15) - dt.datetime(2022, 1, 1)).days
         Ratio = 30/Total_Days
         Retorno_Mensual = Retorno_Total*Ratio
 
@@ -135,7 +127,6 @@ class BacktestingClass:
                  "Total Return",
                  "Start Period",
                  "End Period",
-                 "Frequency",
                  "Mensual Return"]
 
         resultados = [["{}".format(Ordenes_Cerradas)],
@@ -145,7 +136,6 @@ class BacktestingClass:
                       ["{:.2f} %".format(Retorno_Total)],
                       ["{}".format(self.StartDate)],
                       ["{}".format(self.EndDate)],
-                      ["{}".format(self.Frequency)],
                       ["{:.2f} %".format(Retorno_Mensual)]]
 
         df = pd.DataFrame(resultados, columns = columnas)

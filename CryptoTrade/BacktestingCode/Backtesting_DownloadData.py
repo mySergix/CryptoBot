@@ -8,9 +8,7 @@ import datetime as dt
 import math
 import os
 import random
-from binance.client import Client
-from binance.exceptions import BinanceAPIException
-from binance.enums import *
+import yfinance as yf
 
 # Checking for a correct frequency
 def Check_frequency(Frequency_Ava, Frequency):
@@ -29,9 +27,9 @@ def Check_frequency(Frequency_Ava, Frequency):
 # Filtering of downloaded data
 def Initial_Data_filter(Data):
     df = pd.DataFrame(Data)
-    df = df.drop([6, 7, 9, 10, 11], axis=1)
+    df = df.drop(['Adj Close', 'Volume'], axis=1)
 
-    columns = ["time", "open", "high", "low", "close", "volume", "trades"]
+    columns = ["open", "high", "low", "close", "time"]
     df.columns = columns
 
     for i in columns:
@@ -41,66 +39,54 @@ def Initial_Data_filter(Data):
 
     return df
 
-# Download the Candlestick data into csv files
-def Download_candles_data(BINANCE_KEYS, Coin, Fiat, Frequency, StartDate, EndDate):
+# Download the Candlestick data into csv files for Crypto
+def Download_candles_data_Crypto(Coin, Fiat, Frequency, StartDate, EndDate):
 
-    API_Binance = Client(BINANCE_KEYS["API_Key"], BINANCE_KEYS["Secret_Key"])
-
-    # Calculate the total number of candles to download according to the selected time range
-    FI = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]), int(StartDate[11:13]),
-                    int(StartDate[14:16]), int(StartDate[17:19]))
-    FF = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]), int(EndDate[11:13]),
-                    int(EndDate[14:16]), int(EndDate[17:19]))
-    # EndDate
-    Total_Time = math.floor((FF - FI).total_seconds())
-    ######ELIMINAR EL ULTIMO CARACTER UNICAMENTE Y VER QUÉ CARACTER ES (m, h, d, W o M)######
-
-    if "m" in Frequency:
-        if(len(Frequency)) == 2:
-            CandleSeconds = 60*float(Frequency[0])
-            CandleMinutes = int(Frequency[0])
-        else:
-            CandleSeconds = 60*float(Frequency[:2])
-            CandleMinutes = int(Frequency[:2])
-    elif "h" in Frequency:
-        if (len(Frequency)) == 2:
-            CandleSeconds = 3600*float(Frequency[0])
-            CandleMinutes = 60*int(Frequency[0])
-        else:
-            CandleSeconds = 3600*float(Frequency[:2])
-            CandleMinutes = 60*int(Frequency[:2])
-    elif "d" in Frequency:
-        CandleSeconds = 86400*float(Frequency[0])
-        CandleMinutes = 24*60*int(Frequency[0])
-    elif "w" in Frequency:
-        CandleSeconds = 7*86400*float(Frequency[0])
-        CandleMinutes = 7*24*60*int(Frequency[0])
-    elif "M" in Frequency:
-        CandleSeconds = 30*86400*float(Frequency[0])
-        CandleMinutes = 30*24*60*int(Frequency[0])
-
-    DataElements = math.floor(Total_Time/CandleSeconds)
-
-    Header = ["time", "open", "high", "low", "close", "volume", "trades", "start"]
-    Data = API_Binance.get_klines(symbol = Coin+Fiat, interval = Frequency, limit = DataElements)
-    Data = Initial_Data_filter(Data)
+    Data = yf.download('{}-{}'.format(Coin, Fiat), start = StartDate, end = EndDate, index_as_date = False, interval = Frequency)
+    Data['time'] = Data.index
+    Data['time'] = Data['time'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
     # Generate the directory of the data
-    if not os.path.isdir("MarketData/{}{}/".format(Coin, Fiat)):
-        os.mkdir("MarketData/{}{}/".format(Coin, Fiat))
+    if not os.path.isdir("MarketData/Crypto/{}{}/".format(Coin, Fiat)):
+        os.mkdir("MarketData/Crypto/{}{}/".format(Coin, Fiat))
 
     # If the name already exists, delete it
-    if os.path.exists("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency)):
-        os.remove("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
+    if os.path.exists("MarketData/Crypto/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency)):
+        os.remove("MarketData/Crypto/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
 
-    Data.to_csv("MarketData/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
+    Data.to_csv("MarketData/Crypto/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
+    #print(Data)
 
-    return DataElements
+# Download the Candlestick data into csv files for Stocks
+def Download_candles_data_Stocks(Ticker, Frequency, StartDate, EndDate):
 
-# Function to get the Candlestick data
-def Get_CandlestickData(BINANCE_KEYS, Frequency_Avail, Frequency, Coin_Cr, Coin_Fi, Date_Start, Date_End):
+    Data = yf.get_data(Ticker, start_date = StartDate, end_date = EndDate, index_as_date = True, interval = Frequency)
+
+    # Generate the directory of the data
+    if not os.path.isdir("MarketData/Stocks/{}/".format(Ticker)):
+        os.mkdir("MarketData/Stocks/{}/".format(Ticker))
+
+    # If the name already exists, delete it
+    if os.path.exists("MarketData/Stocks/{}/Freq_{}.csv".format(Ticker, Frequency)):
+        os.remove("MarketData/Stocks/{}/Freq_{}.csv".format(Ticker, Frequency))
+
+    Initial_Data_filter(Data)
+    Data.to_csv("MarketData/Stocks/{}/Freq_{}.csv".format(Ticker, Frequency))
+
+
+# Function to get the Candlestick data for Crypto
+def Get_CandlestickData_Crypto(Frequency_Avail, Frequency, Coin_Cr, Coin_Fi, Date_Start, Date_End):
 
     if Check_frequency(Frequency_Avail, Frequency):
-        DataElements = Download_candles_data(BINANCE_KEYS, Coin_Cr, Coin_Fi, Frequency, Date_Start, Date_End)
+        Download_candles_data_Crypto(Coin_Cr, Coin_Fi, Frequency, Date_Start, Date_End)
+    else:
+        print("Error for the selected frequency ({})\n ".format(Frequency))
+
+
+# Function to get the Candlestick data for Stocks
+def Get_CandlestickData_Stocks(Frequency_Avail, Frequency, Ticker, Date_Start, Date_End):
+
+    if Check_frequency(Frequency_Avail, Frequency):
+        Download_candles_data_Stocks(Ticker, Frequency, Date_Start, Date_End)
     else:
         print("Error for the selected frequency ({})\n ".format(Frequency))

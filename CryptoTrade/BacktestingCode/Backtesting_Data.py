@@ -4,13 +4,13 @@ from datetime import datetime
 # Par de monedas del Backtesting
 COIN = {
     "Crypto": "BTC",
-    "Fiat": "USDT"
+    "Fiat": "USD"
 }
 
 # Fechas de inicio y final (Año, mes, dia, horas, minutos, segundos) del Backtesting
 DATE = {
-    "StartDate": "2022-05-01 10:00:00",
-    "EndDate": "2022-07-15 00:00:00"
+    "StartDate": "2022-01-01",
+    "EndDate": "2022-07-15"
     #datetime.now()
 }
 
