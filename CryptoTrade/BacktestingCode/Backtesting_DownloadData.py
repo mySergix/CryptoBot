@@ -24,20 +24,6 @@ def Check_frequency(Frequency_Ava, Frequency):
 
     return check
 
-# Filtering of downloaded data
-def Initial_Data_filter(Data):
-    df = pd.DataFrame(Data)
-    df = df.drop(['Adj Close', 'Volume'], axis=1)
-
-    columns = ["open", "high", "low", "close", "time"]
-    df.columns = columns
-
-    for i in columns:
-        df[i] = df[i].astype(float)
-
-    df["start"] = pd.to_datetime(df["time"]*1000000,format= '%Y-%m-%d %H:%M:%S' )
-
-    return df
 
 # Download the Candlestick data into csv files for Crypto
 def Download_candles_data_Crypto(Coin, Fiat, Frequency, StartDate, EndDate):
@@ -55,7 +41,7 @@ def Download_candles_data_Crypto(Coin, Fiat, Frequency, StartDate, EndDate):
         os.remove("MarketData/Crypto/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
 
     Data.to_csv("MarketData/Crypto/{}{}/Freq_{}.csv".format(Coin, Fiat, Frequency))
-    #print(Data)
+
 
 # Download the Candlestick data into csv files for Stocks
 def Download_candles_data_Stocks(Ticker, Frequency, StartDate, EndDate):

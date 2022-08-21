@@ -13,14 +13,13 @@ import random
 pd.options.mode.chained_assignment = None  # default='warn'
 
 # Code Files
-from Bot_KeyData import BINANCE_KEYS
-from Backtesting_Data import COIN, DATE
+from Backtesting_Data import COIN, STOCK, DATE
 import Backtesting_DownloadData 
 import Bot_Backtesting
 import Bot_Strategy
 import Bot_BacktestingSizers
 
-Bot_BackTest = Bot_Backtesting.BacktestingClass(COIN["Crypto"], COIN["Fiat"], DATE["StartDate"], DATE["EndDate"])
+Bot_BackTest = Bot_Backtesting.BacktestingClass(COIN["Crypto"], COIN["Fiat"], STOCK["Ticker"], DATE["StartDate"], DATE["EndDate"])
 #Bot_BackTest.AddComissions(Bot_1.makerCommission)
 Bot_BackTest.SetInitialMoney(1000.00)
 Bot_BackTest.AddSizers(Bot_BacktestingSizers.FullMoney)

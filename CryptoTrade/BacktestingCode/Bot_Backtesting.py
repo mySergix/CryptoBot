@@ -18,14 +18,14 @@ import Bot_Strategy
 class BacktestingClass:
 
     # CONSTRUCTOR
-    def __init__(self, Crypto, Fiat, StartDate, EndDate):
+    def __init__(self, Crypto, Fiat, Stock, StartDate, EndDate):
 
         self.Crypto = Crypto
         self.Fiat = Fiat
-        #self.StartDate = StartDate.dt.strftime('%Y-%m-%d %H:%M:%S')     
-        #self.EndDate = EndDate.dt.strftime('%Y-%m-%d %H:%M:%S')
-        self.StartDate = StartDate
-        self.EndDate = EndDate
+        self.Stock = Stock
+       
+        self.StartDate = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]))
+        self.EndDate = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]))
         self.BacktestingCore = bt.Cerebro()
 
         DataFrequency = ['1d']
@@ -44,17 +44,27 @@ class BacktestingClass:
                 self.Compresion = 1 # Revisar lo de compression
                 self.formatodt = "%Y-%m-%d"
 
-            Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, Crypto, Fiat, StartDate, EndDate)
-            # Backtesting_DownloadData.Get_CandlestickData_Stocks(Frequency_Available, Freq, 'TSLA', StartDate, EndDate)
-            
-            # Data feeded into the backtesting bot
+            # Data Downloading for Crypto
+            Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, self.Crypto, self.Fiat, StartDate, EndDate)
+
+            # Data feeded into the backtesting bot (Crypto)
             Data = bt.feeds.YahooFinanceCSVData(
                 dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
-                fromdate = dt.datetime(2022, 1, 1),
-                todate = dt.datetime(2022, 7, 15),
+                fromdate = self.StartDate,
+                todate = self.EndDate,
                 reverse = False)
-              
-            # globals()['Data_' + '{}'.format(Freq)]
+
+
+            # Data Downloading for Stocks
+            # Backtesting_DownloadData.Get_CandlestickData_Stocks(Frequency_Available, Freq, self.Stock, StartDate, EndDate)
+             
+            # Data feeded into the backtesting bot (Stocks)
+            # Data = bt.feeds.YahooFinanceCSVData(
+            #     dataname = ("MarketData/Stocks/{}/Freq_{}.csv".format(self.Stock, Freq)),
+            #     fromdate = self.StartDate,
+            #     todate = self.EndDate,
+            #     reverse = False)
+
             self.BacktestingCore.adddata(Data)
 
         #________________________________________________________________________________________________________________
@@ -112,7 +122,7 @@ class BacktestingClass:
         Net_Profit = results.pnl.net.total
         Retorno_Total = (Net_Profit/self.InitialMoney)*100
 
-        Total_Days = (dt.datetime(2022, 7, 15) - dt.datetime(2022, 1, 1)).days
+        Total_Days = (self.EndDate - self.StartDate).days
         Ratio = 30/Total_Days
         Retorno_Mensual = Retorno_Total*Ratio
 
