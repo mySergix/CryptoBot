@@ -3,9 +3,10 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import combinatory
 
-minWon = 59 # %
-maxWon = 60 # %
+minWon = 50 # %
+maxWon = 50 # %
 if minWon > maxWon:
     minWon,maxWon = maxWon,minWon
 
@@ -39,41 +40,53 @@ else:
         percentage = minPer + (maxPer - minPer) * i / (quantity2 - 1)
         perBetTrade.append(percentage)
 
-numTrades = 10
+numTrades = 20
 numIt = 10
 
-comb = [i for i in range(numTrades)]
-
-def potencia(c):
-    """Calcula y devuelve el conjunto potencia del
-       conjunto c.
-    """
-    if len(c) == 0:
-        return [[]]
-    r = potencia(c[:-1])
-    return r + [s + [c[-1]] for s in r]
-
-def combinaciones(c, n):
-    """Calcula y devuelve una lista con todas las
-       combinaciones posibles que se pueden hacer
-       con los elementos contenidos en c tomando n
-       elementos a la vez.
-    """
-    return [s for s in potencia(c) if len(s) == n]
-
-
-
-results = [ [0, 0, 0, 0] for i in range(len(percWonTrades) * len(perBetTrade) * numIt)]
+results = []
+# results = [ [0, 0, 0, 0] for i in range(len(percWonTrades) * len(perBetTrade) * numIt)]
 countPos = -1
 
 for botPerc in percWonTrades:
 
-    # Combinatory without repetition
-    r = int(numTrades*botPerc/100)
-    #numIt = math.factorial(numTrades) / (math.factorial(r) * math.factorial(numTrades - r))
-    listCombination = combinaciones(comb, r)
+    numWins = numTrades * botPerc / 100
 
-print(listCombination)
+    # Checking if numWins is an integer
+    if not numWins.is_integer():
+        raise Exception("numWins must be an integer value. numWins = numTrades * botPerc / 100 ")
+
+    # posWins is the list which contains the possible index winning combinations
+    posWins = combinatory.combWithoutRep(numTrades, int(numWins))
+
+    for i in range(len(posWins)):
+
+        per = 0.2
+        currentCapital = initialInvestment
+
+        print(posWins[i])
+
+        for j in range(numTrades):
+            if isComission:
+                betTrade = currentCapital * per * (1 - makerComission/100)
+            else:
+                betTrade = currentCapital * per;
+
+            if j in posWins[i]:
+                profitPer = 0.75
+            else:
+                profitPer = - 0.75
+
+            if isComission:
+                finalTrade = betTrade * profitPer * (1 - makerComission/100)
+            else:
+                finalTrade = betTrade * profitPer
+            currentCapital = currentCapital + finalTrade
+        print(currentCapital)
+
+        ROI = (currentCapital - initialInvestment) / initialInvestment * 100
+        results.append([botPerc, per * 100, round(ROI,5)])
+
+print(results)
 
 # for botPerc in percWonTrades:
 #
