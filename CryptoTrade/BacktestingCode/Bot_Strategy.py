@@ -21,6 +21,7 @@ class Strategy(bt.Strategy):
 
         # Data Feeds
         self.Data_1h = self.data0
+        self.Data_1d = self.data1
 
         # print(
         #     "{} o {} \th {} \tl {} \tc {}\tv {}".format( 
@@ -80,26 +81,3 @@ class Strategy(bt.Strategy):
     def stoploss(self):
         if self.Data_1h.close < 0.90*float(self.position.price):
             self.close()
-
-    # def get_numberofcandles(self, totaltime):
-
-    #     if self.Frequency[-1] == totaltime[-1]:
-    #         candle_ratio = int(totaltime[0 : len(totaltime)-1 : ])/int(self.Frequency[0 : len(self.Frequency)-1 : ])
-    #     else:
-    #         if self.Frequency[-1] == "m":
-    #             freq_seconds = 60*int(self.Frequency[0 : len(self.Frequency)-1 : ])
-    #         elif self.Frequency[-1] == "h":
-    #             freq_seconds = 3600*int(self.Frequency[0 : len(self.Frequency)-1 : ])
-    #         elif self.Frequency[-1] == "d":
-    #             freq_seconds = 7*3600*int(self.Frequency[0 : len(self.Frequency)-1 : ])
-
-    #         if totaltime[-1] == "m":
-    #             totaltime_seconds = 60*int(totaltime[0 : len(totaltime)-1 : ])
-    #         elif totaltime[-1] == "h":
-    #             totaltime_seconds = 3600*int(totaltime[0 : len(totaltime)-1 : ])
-    #         elif totaltime[-1] == "d":
-    #             totaltime_seconds = 7*3600*int(totaltime[0 : len(totaltime)-1 : ])
-
-    #         candle_ratio = totaltime_seconds/freq_seconds
-
-    #     return candle_ratio

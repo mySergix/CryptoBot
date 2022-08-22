@@ -11,7 +11,11 @@ STOCK = {
     "Ticker": "TSLA"
 }
 
-# Fechas de inicio y final (Año, mes, dia, horas, minutos, segundos) del Backtesting
+ASSET = {
+    "AssetType": 0 # 0 for Crypto, 1 for Stocks
+}
+
+# Fechas de inicio y final (Año-mes-dia) del Backtesting
 DATE = {
     "StartDate": "2022-01-01",
     "EndDate": "2022-07-15"

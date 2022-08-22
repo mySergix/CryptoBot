@@ -18,7 +18,7 @@ import Bot_Strategy
 class BacktestingClass:
 
     # CONSTRUCTOR
-    def __init__(self, Crypto, Fiat, Stock, StartDate, EndDate):
+    def __init__(self, AssetType, Crypto, Fiat, Stock, StartDate, EndDate):
 
         self.Crypto = Crypto
         self.Fiat = Fiat
@@ -28,7 +28,7 @@ class BacktestingClass:
         self.EndDate = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]))
         self.BacktestingCore = bt.Cerebro()
 
-        DataFrequency = ['1d']
+        DataFrequency = ['1h', '1d']
 
         for Freq in DataFrequency:
             if Freq[-1] == "m":
@@ -44,26 +44,27 @@ class BacktestingClass:
                 self.Compresion = 1 # Revisar lo de compression
                 self.formatodt = "%Y-%m-%d"
 
-            # Data Downloading for Crypto
-            Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, self.Crypto, self.Fiat, StartDate, EndDate)
+            if AssetType == 0:
+                # Data Downloading for Crypto
+                Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, self.Crypto, self.Fiat, StartDate, EndDate)
 
-            # Data feeded into the backtesting bot (Crypto)
-            Data = bt.feeds.YahooFinanceCSVData(
-                dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
-                fromdate = self.StartDate,
-                todate = self.EndDate,
-                reverse = False)
+                # Data feeded into the backtesting bot (Crypto)
+                Data = bt.feeds.YahooFinanceCSVData(
+                    dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
+                    fromdate = self.StartDate,
+                    todate = self.EndDate,
+                    reverse = False)
 
-
-            # Data Downloading for Stocks
-            # Backtesting_DownloadData.Get_CandlestickData_Stocks(Frequency_Available, Freq, self.Stock, StartDate, EndDate)
+            elif AssetType == 1:
+                # Data Downloading for Stocks
+                Backtesting_DownloadData.Get_CandlestickData_Stocks(Frequency_Available, Freq, self.Stock, StartDate, EndDate)
              
-            # Data feeded into the backtesting bot (Stocks)
-            # Data = bt.feeds.YahooFinanceCSVData(
-            #     dataname = ("MarketData/Stocks/{}/Freq_{}.csv".format(self.Stock, Freq)),
-            #     fromdate = self.StartDate,
-            #     todate = self.EndDate,
-            #     reverse = False)
+                # Data feeded into the backtesting bot (Stocks)
+                Data = bt.feeds.YahooFinanceCSVData(
+                    dataname = ("MarketData/Stocks/{}/Freq_{}.csv".format(self.Stock, Freq)),
+                    fromdate = self.StartDate,
+                    todate = self.EndDate,
+                    reverse = False)
 
             self.BacktestingCore.adddata(Data)
 
