@@ -17,11 +17,12 @@ def Check_frequency(Frequency_Ava, Frequency):
         if Frequency == Frequency_Ava[i]:
             check = True
 
-    if check == True:
-        print("The selected frequency of {} is correct. \n".format(Frequency))
-    else:
-        print("The selected frequency of {} is NOT correct. \n".format(Frequency))
-
+    if check == False:
+        print("The selected frequency of {} is not available. Select one of the following frequencies:  \n".format(Frequency))
+        for i in range(len(Frequency_Ava)):
+            print("{} \t" .format(Frequency_Ava[i]))
+        exit()
+    
     return check
 
 
@@ -56,7 +57,6 @@ def Download_candles_data_Stocks(Ticker, Frequency, StartDate, EndDate):
     if os.path.exists("MarketData/Stocks/{}/Freq_{}.csv".format(Ticker, Frequency)):
         os.remove("MarketData/Stocks/{}/Freq_{}.csv".format(Ticker, Frequency))
 
-    Initial_Data_filter(Data)
     Data.to_csv("MarketData/Stocks/{}/Freq_{}.csv".format(Ticker, Frequency))
 
 

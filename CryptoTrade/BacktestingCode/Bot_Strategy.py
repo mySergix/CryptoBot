@@ -60,7 +60,7 @@ class Strategy(bt.Strategy):
 
     def next(self):
         self.log("Close, %.2f" % self.Data_1h.close[0])
-        self.stoploss()
+        self.stopLoss()
 
         if self.position:
             if self.position.price < self.Data_1h.close[0]:
@@ -78,6 +78,6 @@ class Strategy(bt.Strategy):
     # #def stop(self):
     # #    print(self.position)
 
-    def stoploss(self):
+    def stopLoss(self):
         if self.Data_1h.close < 0.90*float(self.position.price):
             self.close()

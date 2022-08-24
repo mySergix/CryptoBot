@@ -28,22 +28,11 @@ class BacktestingClass:
         self.EndDate = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]))
         self.BacktestingCore = bt.Cerebro()
 
+        #CHANGE: Declare data frequency as a constructor argument
         DataFrequency = ['1h', '1d']
 
         for Freq in DataFrequency:
-            if Freq[-1] == "m":
-                self.TimeFrame = bt.TimeFrame.Minutes
-                self.Compresion = 1
-                self.formatodt = "%Y-%m-%d %H:%M:%S"
-            elif Freq[-1] == "h":
-                self.TimeFrame = bt.TimeFrame.Minutes
-                self.Compresion = 60*int(Freq[0 : len(Freq)-1 : ])
-                self.formatodt = "%Y-%m-%d %H:%M:%S"
-            elif Freq[-1] == "d":
-                self.TimeFrame = bt.TimeFrame.Days
-                self.Compresion = 1 # Revisar lo de compression
-                self.formatodt = "%Y-%m-%d"
-
+            
             if AssetType == 0:
                 # Data Downloading for Crypto
                 Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, self.Crypto, self.Fiat, StartDate, EndDate)
