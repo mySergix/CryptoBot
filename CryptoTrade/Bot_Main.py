@@ -19,6 +19,7 @@ import Bot_BacktestingSizers
 API_Binance = Client(BINANCE["API_Key"], BINANCE["Secret_Key"])
 Frequency_Available = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
 
+# MENUDA TULA COMPADRE
 # Checking for a correct frequency
 def Check_frequency(Frequency_Ava, Frequency):
     check = False
