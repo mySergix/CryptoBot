@@ -23,7 +23,7 @@ class BacktestingClass:
         self.Crypto = Crypto
         self.Fiat = Fiat
         self.Stock = Stock
-       
+
         self.StartDate = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]))
         self.EndDate = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]))
         self.BacktestingCore = bt.Cerebro()
@@ -32,27 +32,27 @@ class BacktestingClass:
         DataFrequency = ['1h', '1d']
 
         for Freq in DataFrequency:
-            
+
             if AssetType == 0:
-                # Data Downloading for Crypto
+                # Data downloading for crypto
                 Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, self.Crypto, self.Fiat, StartDate, EndDate)
 
                 # Data feeded into the backtesting bot (Crypto)
                 Data = bt.feeds.YahooFinanceCSVData(
-                    dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
-                    fromdate = self.StartDate,
-                    todate = self.EndDate,
+                    dataName = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
+                    fromDate = self.StartDate,
+                    toDate = self.EndDate,
                     reverse = False)
 
             elif AssetType == 1:
-                # Data Downloading for Stocks
+                # Data downloading for stocks
                 Backtesting_DownloadData.Get_CandlestickData_Stocks(Frequency_Available, Freq, self.Stock, StartDate, EndDate)
-             
+
                 # Data feeded into the backtesting bot (Stocks)
                 Data = bt.feeds.YahooFinanceCSVData(
-                    dataname = ("MarketData/Stocks/{}/Freq_{}.csv".format(self.Stock, Freq)),
-                    fromdate = self.StartDate,
-                    todate = self.EndDate,
+                    dataName = ("MarketData/Stocks/{}/Freq_{}.csv".format(self.Stock, Freq)),
+                    fromDate = self.StartDate,
+                    toDate = self.EndDate,
                     reverse = False)
 
             self.BacktestingCore.adddata(Data)
