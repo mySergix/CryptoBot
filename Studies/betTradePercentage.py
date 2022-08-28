@@ -40,7 +40,7 @@ else:
         percentage = minPer + (maxPer - minPer) * i / (quantity2 - 1)
         perBetTrade.append(percentage)
 
-numTrades = 20
+numTrades = 40
 numIt = 10
 
 results = []
@@ -60,7 +60,7 @@ for botPerc in percWonTrades:
 
     for i in range(len(posWins)):
 
-        per = 0.2
+        per = 0.05
         currentCapital = initialInvestment
 
         print(posWins[i])
@@ -72,9 +72,9 @@ for botPerc in percWonTrades:
                 betTrade = currentCapital * per;
 
             if j in posWins[i]:
-                profitPer = 0.75
+                profitPer = 0.2
             else:
-                profitPer = - 0.75
+                profitPer = - 0.2
 
             if isComission:
                 finalTrade = betTrade * profitPer * (1 - makerComission/100)
