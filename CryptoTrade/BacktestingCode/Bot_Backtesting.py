@@ -28,7 +28,7 @@ class BacktestingClass:
         self.EndDate = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]))
         self.BacktestingCore = bt.Cerebro()
 
-        DataFrequency = ['1h', '1d']
+        DataFrequency = ['1d']
 
         for Freq in DataFrequency:
             if Freq[-1] == "m":
