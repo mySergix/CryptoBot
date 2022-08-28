@@ -2,9 +2,9 @@ import datetime as dt
 from datetime import datetime
 
 # Par de monedas del Backtesting
-COIN = {
-    "Crypto": "BTC",
-    "Fiat": "USD"
+PAIR = {
+    "Base": "BTC",
+    "Quote": "USD"
 }
 
 STOCK = {
@@ -18,8 +18,7 @@ ASSET = {
 # Fechas de inicio y final (Año-mes-dia) del Backtesting
 DATE = {
     "StartDate": "2022-01-01",
-    "EndDate": "2022-07-15"
-    #datetime.now()
+    "EndDate": "2022-07-15" #datetime.now()
 }
 
 # Frequency available for the candlestick data
