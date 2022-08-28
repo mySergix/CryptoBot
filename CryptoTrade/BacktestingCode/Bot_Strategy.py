@@ -6,7 +6,7 @@ import pandas as pd
 class Strategy(bt.Strategy):
 
     params = (
-        ('FastSMA', 10), 
+        ('FastSMA', 10),
         ('SlowSMA', 50),
         ("percents", 100)
     )
@@ -24,7 +24,7 @@ class Strategy(bt.Strategy):
         self.Data_1d = self.data1
 
         # print(
-        #     "{} o {} \th {} \tl {} \tc {}\tv {}".format( 
+        #     "{} o {} \th {} \tl {} \tc {}\tv {}".format(
         #     self.Data_1h.datetime.datetime(),
         #     self.Data_1h.open,
         #     self.Data_1h.high[0],
@@ -51,9 +51,15 @@ class Strategy(bt.Strategy):
 
         if order.status in [order.Completed]:
             if order.isbuy():
-                self.log("Compra, %.2f" % order.executed.price)
+                self.log("BUY EXECUTED, %.2f" % order.executed.price)
             elif order.issell():
-                self.log("Venta, %.2f" % order.executed.price)
+                self.log("SELL EXECUTED, %.2f" % order.executed.price)
+
+    def NotifyTrade(self, trade):
+        if not trade.isclosed:
+            return
+
+        self.log("OPERATION PROFIT, GROSS %.2f, NET %.2f", % (trade.pnl, trade.pnlcomm))
 
     def prenext(self):
         self.log("Close, %.2f" % self.Data_1h.close[0])
