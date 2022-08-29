@@ -1,4 +1,4 @@
-# BACKTESTING DATA EXTRACTION: User defined functions for extracting the datasets containing the information of the market (candles) from Yahoo finance. 
+# BACKTESTING DATA EXTRACTION: User defined functions for extracting the datasets containing the information of the market (candles) from Yahoo Finance.
 
 # Python Libraries
 import pandas as pd
@@ -13,11 +13,11 @@ import yfinance as yf
 
 def checkFrequency(FrequencyAva: list, Frequency: str):
 
-    ''' 
-    Checking for a correct frequency: Check if the frequency of the data selected by the user exists in the repository of Yahoo finance.
+    '''
+    Checking for a correct frequency: Check if the frequency of the data selected by the user exists in the repository of Yahoo Finance.
     Otherwise, prints an error message suggesting the available frequencies.
-    
-        @param FrequencyAva: List of frequencies avaliable from yahoo finance.
+
+        @param FrequencyAva: List of frequencies avaliable from Yahoo Finance.
         @param Frequency: User desired frequency.
 
         @return check: Boleean variable that is true if Frequency exists in FrequencyAva.
@@ -33,15 +33,15 @@ def checkFrequency(FrequencyAva: list, Frequency: str):
         for i in range(len(FrequencyAva)):
             print("{} \t" .format(FrequencyAva[i]))
         exit()
-    
+
     return check
 
 def dataCrypto(FrequencyAva: list, Frequency: str, Pair: tuple, StartDate: str, EndDate: str):
-    
-    ''' 
+
+    '''
     Downloading the candlestick data into .csv files for cryptocurrencies.
 
-        @param FrequencyAva: List of frequencies avaliable from yahoo finance.
+        @param FrequencyAva: List of frequencies avaliable from Yahoo Finance.
         @param Frequency: User desired frequency.
         @param Pair: Coin pair operated.
         @param StartDate: Starting date of the downloaded data.
@@ -52,7 +52,7 @@ def dataCrypto(FrequencyAva: list, Frequency: str, Pair: tuple, StartDate: str, 
 
     # Downloading in case the frequency exists
     if checkFrequency(FrequencyAva, Frequency):
-        
+
         # Dowloading data from Yahoo Finance
         Data = yf.download('{}-{}'.format(Pair["Base"], Pair["Quote"]), start = StartDate, end = EndDate, index_as_date = False, interval = Frequency)
         Data['time'] = Data.index
@@ -68,17 +68,17 @@ def dataCrypto(FrequencyAva: list, Frequency: str, Pair: tuple, StartDate: str, 
 
         # Generating .csv file from DataFrame
         Data.to_csv("MarketData/Crypto/{}{}/Freq_{}.csv".format(Pair["Base"], Pair["Quote"], Frequency))
-        
+
     else:
         print("Error for the selected frequency ({})\n ".format(Frequency))
 
 
 def dataStocks(FrequencyAva: list, Frequency: str, Ticker: str, StartDate: str, EndDate: str):
 
-    ''' 
+    '''
     Downloading the candlestick data into .csv files for stocks.
 
-        @param FrequencyAva: List of frequencies avaliable from yahoo finance.
+        @param FrequencyAva: List of frequencies avaliable from Yahoo Finance.
         @param Frequency: User desired frequency.
         @param Pair: Coin pair operated.
         @param StartDate: Starting date of the downloaded data.
