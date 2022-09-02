@@ -12,58 +12,46 @@ import csv
 
 # Files imported
 from Backtesting_Data import Frequency_Available
-import Backtesting_DownloadData
+import downloadData
 import Bot_Strategy
 
 class BacktestingClass:
 
     # CONSTRUCTOR
-    def __init__(self, AssetType, Crypto, Fiat, Stock, StartDate, EndDate):
+    def __init__(self, AssetType, Pair, Stock, Date):
 
-        self.Crypto = Crypto
-        self.Fiat = Fiat
+        self.Pair = Pair
         self.Stock = Stock
-       
-        self.StartDate = dt.datetime(int(StartDate[0:4]), int(StartDate[5:7]), int(StartDate[8:10]))
-        self.EndDate = dt.datetime(int(EndDate[0:4]), int(EndDate[5:7]), int(EndDate[8:10]))
+
+        self.dtStartDate = dt.datetime(int(Date["StartDate"][0:4]), int(Date["StartDate"][5:7]), int(Date["StartDate"][8:10]))
+        self.dtEndDate = dt.datetime(int(Date["EndDate"][0:4]), int(Date["EndDate"][5:7]), int(Date["EndDate"][8:10]))
         self.BacktestingCore = bt.Cerebro()
 
-        DataFrequency = ['1d']
+        #CHANGE: Declare data frequency as a constructor argument
+        DataFrequency = ['1h', '1d']
 
         for Freq in DataFrequency:
-            if Freq[-1] == "m":
-                self.TimeFrame = bt.TimeFrame.Minutes
-                self.Compresion = 1
-                self.formatodt = "%Y-%m-%d %H:%M:%S"
-            elif Freq[-1] == "h":
-                self.TimeFrame = bt.TimeFrame.Minutes
-                self.Compresion = 60*int(Freq[0 : len(Freq)-1 : ])
-                self.formatodt = "%Y-%m-%d %H:%M:%S"
-            elif Freq[-1] == "d":
-                self.TimeFrame = bt.TimeFrame.Days
-                self.Compresion = 1 # Revisar lo de compression
-                self.formatodt = "%Y-%m-%d"
-
+            
             if AssetType == 0:
                 # Data Downloading for Crypto
-                Backtesting_DownloadData.Get_CandlestickData_Crypto(Frequency_Available, Freq, self.Crypto, self.Fiat, StartDate, EndDate)
+                downloadData.dataCrypto(Frequency_Available, Freq, self.Pair, Date["StartDate"], Date["EndDate"])
 
                 # Data feeded into the backtesting bot (Crypto)
                 Data = bt.feeds.YahooFinanceCSVData(
-                    dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Crypto, self.Fiat, Freq)),
-                    fromdate = self.StartDate,
-                    todate = self.EndDate,
+                    dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.Pair["Base"], self.Pair["Quote"], Freq)),
+                    fromdate = self.dtStartDate,
+                    todate = self.dtEndDate,
                     reverse = False)
 
             elif AssetType == 1:
                 # Data Downloading for Stocks
-                Backtesting_DownloadData.Get_CandlestickData_Stocks(Frequency_Available, Freq, self.Stock, StartDate, EndDate)
+                downloadData.dataStocks(Frequency_Available, Freq, self.Stock, Date["StartDate"], Date["EndDate"])
              
                 # Data feeded into the backtesting bot (Stocks)
                 Data = bt.feeds.YahooFinanceCSVData(
                     dataname = ("MarketData/Stocks/{}/Freq_{}.csv".format(self.Stock, Freq)),
-                    fromdate = self.StartDate,
-                    todate = self.EndDate,
+                    fromdate = self.dtStartDate,
+                    todate = self.dtEndDate,
                     reverse = False)
 
             self.BacktestingCore.adddata(Data)
@@ -123,7 +111,7 @@ class BacktestingClass:
         Net_Profit = results.pnl.net.total
         Retorno_Total = (Net_Profit/self.InitialMoney)*100
 
-        Total_Days = (self.EndDate - self.StartDate).days
+        Total_Days = (self.dtEndDate - self.dtStartDate).days
         Ratio = 30/Total_Days
         Retorno_Mensual = Retorno_Total*Ratio
 
@@ -143,10 +131,10 @@ class BacktestingClass:
         resultados = [["{}".format(Ordenes_Cerradas)],
                       ["{}".format(Ordenes_Positivas)],
                       ["{:.2f} %".format(100*Win_Ratio)],
-                      ["{:.2f} {}".format(Net_Profit, self.Fiat)],
+                      ["{:.2f} {}".format(Net_Profit, self.Pair["Quote"])],
                       ["{:.2f} %".format(Retorno_Total)],
-                      ["{}".format(self.StartDate)],
-                      ["{}".format(self.EndDate)],
+                      ["{}".format(self.dtStartDate)],
+                      ["{}".format(self.dtEndDate)],
                       ["{:.2f} %".format(Retorno_Mensual)]]
 
         df = pd.DataFrame(resultados, columns = columnas)
