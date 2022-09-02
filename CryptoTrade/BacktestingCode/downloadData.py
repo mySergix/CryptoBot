@@ -10,7 +10,6 @@ import os
 import random
 import yfinance as yf
 
-
 def checkFrequency(FrequencyAva: list, Frequency: str):
 
     '''
@@ -71,7 +70,6 @@ def dataCrypto(FrequencyAva: list, Frequency: str, Pair: tuple, StartDate: str, 
 
     else:
         print("Error for the selected frequency ({})\n ".format(Frequency))
-
 
 def dataStocks(FrequencyAva: list, Frequency: str, Ticker: str, StartDate: str, EndDate: str):
 
