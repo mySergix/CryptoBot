@@ -41,10 +41,10 @@ class BacktestingClass:
         for freq in dataFrequency:
 
             if assetType == 0:
-                # Data Downloading for Crypto
+                # Downloading data for cryptocurrency
                 downloadData.dataCrypto(FREQUENCIES, freq, self.pair, date["StartDate"], date["EndDate"])
 
-                # Data feeded into the backtesting bot (Crypto)
+                # Cryptocurrency data feeded into the backtesting
                 data = bt.feeds.YahooFinanceCSVData(
                     dataname = ("MarketData/Crypto/{}{}/Freq_{}.csv".format(self.pair["Base"], self.pair["Quote"], freq)),
                     fromdate = self.dtStartDate,
@@ -52,10 +52,10 @@ class BacktestingClass:
                     reverse = False)
 
             elif assetType == 1:
-                # Data Downloading for Stocks
+                # Downloading data for stocks
                 downloadData.dataStocks(FREQUENCIES, freq, self.stock, date["StartDate"],date["EndDate"])
 
-                # Data feeded into the backtesting bot (Stocks)
+                # Stocks data feeded into the backtesting
                 data = bt.feeds.YahooFinanceCSVData(
                     dataname = ("MarketData/Stocks/{}/Freq_{}.csv".format(self.stock, freq)),
                     fromdate = self.dtStartDate,
@@ -73,46 +73,99 @@ class BacktestingClass:
 
             @return none
         '''
+
         self.cerebro.broker.setcash(money)
         self.InitialMoney = money
 
-    # Show on screen the current portfolio value
     def printCurrentMoney(self):
+
+        '''
+        Printing the current portfolio value.
+
+            @return none
+        '''
+
         print("Current Portfolio Value: %.2f" % self.cerebro.broker.getvalue())
 
-    # Add Binance comissions
     def setComissions(self, comissions):
+
+        '''
+        Setting Binance commissions.
+
+            @param comissions: broker comission for each trade.
+
+            @return none
+        '''
+
         self.cerebro.broker.setcommission(commission = comissions)
 
-    # Add the money percentage of each trade
     def setSizers(self, sizer):
+
+        '''
+        Setting portfolio percentage for each trade.
+
+            @param sizer: sizers class.
+
+            @return none
+        '''
+
         self.cerebro.addsizer(sizer)
 
-    # Add a backtesting strategy
     def setStrategy(self, strategy):
+
+        '''
+        Setting backtesting strategy.
+
+            @param strategy: strategy class.
+
+            @return none
+        '''
+
         self.cerebro.addstrategy(strategy)
 
     # Run the implemented strategy
     def runStrategy(self):
+
+        '''
+        Running the implemented class.
+
+            @return none
+        '''
+
         self.strats = self.cerebro.run()
         self.strat = self.strats[0]
         self.results = self.strat.analyzers.ta.get_analysis()
 
-    # Plot the obtained results
     def plotBacktestingResults(self):
+        
+        '''
+        Plotting backtesting results: market analyzers and backtesting plots.
+
+            @return none
+        '''
+
         self.printMarketAnalyzers()
         self.cerebro.plot()
 
     def setBotAnalyzers(self):
+
+        '''
+        Setting bot analyzers (see documentation:
+        https://www.backtrader.com/docu/analyzers/analyzers/)
+
+            @return none
+        '''
+
         self.cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name="ta")
 
-    def backtestingResults(self):
-        try:
-            return self.results.pnl.net.total
-        except KeyError:
-            return 0.0
-
     def printMarketAnalyzers(self):
+
+        '''
+        Printing market analyzers plot. If there are no trades, this function
+        warns the user.
+
+            @return none
+        '''
 
         results = self.strat.analyzers.ta.get_analysis()
 
